@@ -75,7 +75,7 @@ function handleCredentialResponse(response) {
     const urlParams = new URLSearchParams(window.location.search);
     const redirect = urlParams.get('redirect');
     window.location.href = redirect ? decodeURIComponent(redirect) : 'index.html';
-  }, 1000);
+  }, 2000);
 }
 
 // Logout
