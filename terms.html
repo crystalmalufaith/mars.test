@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mars.ai - Terms and Conditions</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="header">
+  <button id="sidebar-toggle" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">☰</button>
+  <h1>Mars.ai</h1>
+  <div></div>
+</div>
+
+<div class="sidebar">
+  <nav class="nav">
+    <a href="index.html">AI Tutor</a>
+    <a href="decks.html">Decks</a>
+    <a href="docs.html">Docs</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="stats.html">Stats</a>
+    <a href="community.html">Community</a>
+    <a href="about.html">About</a>
+    <a href="terms.html">Terms</a>
+    <a href="#" id="account-link">Account</a>
+  </nav>
+</div>
+
+<div class="main-section">
+  <div class="main-container">
+    <div class="page-header">
+      <h1>Terms and Conditions</h1>
+    </div>
+
+    <div class="terms-content">
+      <h2>1. Acceptance of Terms</h2>
+      <p>By accessing and using Mars.ai, you accept and agree to be bound by the terms and provision of this agreement.</p>
+
+      <h2>2. Use License</h2>
+      <p>Permission is granted to temporarily use Mars.ai for personal, non-commercial transitory viewing only.</p>
+
+      <h2>3. Disclaimer</h2>
+      <p>The information on this website is provided on an 'as is' basis. To the fullest extent permitted by law, Mars.ai excludes all representations and warranties relating to this website and its contents.</p>
+
+      <h2>4. Limitations</h2>
+      <p>In no event shall Mars.ai or its suppliers be liable for any damages arising out of the use or inability to use the materials on Mars.ai's website.</p>
+
+      <h2>5. Privacy Policy</h2>
+      <p>Your privacy is important to us. Please review our Privacy Policy, which also governs your use of Mars.ai.</p>
+
+      <h2>6. Governing Law</h2>
+      <p>These terms and conditions are governed by and construed in accordance with the laws of applicable jurisdiction.</p>
+
+      <h2>7. Contact Information</h2>
+      <p>If you have any questions about these Terms and Conditions, please contact us at legal@mars.ai</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="account-modal">
+  <div class="modal-content">
+    <h2>Account</h2>
+    <div id="account-info">
+      <!-- Account info will be loaded here -->
+    </div>
+  </div>
+</div>
+
+<script>
+// Account modal functions
+let outsideClickHandler;
+
+function openAccountModal() {
+  const modal = document.getElementById('account-modal');
+  const info = document.getElementById('account-info');
+  const user = JSON.parse(localStorage.getItem('currentUser'));
+  if (user) {
+    info.innerHTML = `<p>Signed in as: ${user.name}</p><button class="auth-btn" onclick="logout()">Logout</button><br><button onclick="closeAccountModal()" style="background: none; border: none; color: #6c757d; cursor: pointer; margin: 1rem auto 0; display: block; text-align: center;">Close</button>`;
+  } else {
+    info.innerHTML = `<p>Not signed in</p><button class="auth-btn" onclick="window.location.href='sign-in.html'">Sign In</button><br><button onclick="closeAccountModal()" style="background: none; border: none; color: #6c757d; cursor: pointer; margin: 1rem auto 0; display: block; text-align: center;">Close</button>`;
+  }
+  modal.classList.add('show');
+  outsideClickHandler = function(e) {
+    if (e.target.id === 'account-modal') {
+      closeAccountModal();
+    }
+  };
+  document.addEventListener('click', outsideClickHandler);
+}
+
+function closeAccountModal() {
+  document.getElementById('account-modal').classList.remove('show');
+  if (outsideClickHandler) {
+    document.removeEventListener('click', outsideClickHandler);
+    outsideClickHandler = null;
+  }
+}
+
+function logout() {
+  localStorage.removeItem('currentUser');
+  closeAccountModal();
+  window.location.href = 'sign-in.html';
+}
+
+// Event listener for account link
+document.getElementById('account-link').addEventListener('click', function(e) {
+  e.preventDefault();
+  openAccountModal();
+});
+
+// Sidebar toggle
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('sidebar-open');
+  localStorage.setItem('sidebarOpen', document.body.classList.contains('sidebar-open'));
+});
+
+// Initialize sidebar state
+if (localStorage.getItem('sidebarOpen') === 'true') {
+  document.body.classList.add('sidebar-open');
+}
+document.body.classList.add('sidebar-initialized');
+
+// Close sidebar when clicking outside
+document.addEventListener('click', (e) => {
+  const sidebar = document.querySelector('.sidebar');
+  const toggle = document.getElementById('sidebar-toggle');
+  const accountModal = document.getElementById('account-modal');
+  if (!sidebar.contains(e.target) && !toggle.contains(e.target) && document.body.classList.contains('sidebar-open') && !accountModal.classList.contains('show')) {
+    document.body.classList.remove('sidebar-open');
+    localStorage.setItem('sidebarOpen', false);
+  }
+});
+</script>
+
+<script>
+  const toggle = document.getElementById('sidebar-toggle');
+  toggle.addEventListener('click', () => {
+    document.body.classList.toggle('sidebar-closed');
+  });
+</script>
+
+</body>
+</html>

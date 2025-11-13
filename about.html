@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mars.ai - About</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="header">
+  <button id="sidebar-toggle" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">☰</button>
+  <h1>Mars.ai</h1>
+  <div></div>
+</div>
+
+<div class="sidebar">
+  <nav class="nav">
+    <a href="index.html">AI Tutor</a>
+    <a href="decks.html">Decks</a>
+    <a href="docs.html">Docs</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="stats.html">Stats</a>
+    <a href="community.html">Community</a>
+    <a href="about.html">About</a>
+    <a href="terms.html">Terms</a>
+    <a href="#" id="account-link">Account</a>
+  </nav>
+</div>
+
+<div class="main-section">
+  <div class="main-container">
+    <div class="page-header">
+      <h1>About Mars.ai</h1>
+    </div>
+
+    <div class="about-content">
+      <p>Mars.ai is an innovative AI-powered learning platform designed to enhance your educational experience. Our platform leverages advanced artificial intelligence to provide personalized tutoring, generate custom flashcards, create interactive quizzes, and produce detailed study documents.</p>
+
+      <h2>Features</h2>
+      <ul>
+        <li><strong>AI Tutor:</strong> Get instant answers and explanations for any topic.</li>
+        <li><strong>Flashcard Decks:</strong> Create and study custom flashcard decks with AI assistance.</li>
+        <li><strong>AI Quizzes:</strong> Generate quizzes on any subject with varying difficulty levels.</li>
+        <li><strong>Document Generation:</strong> Produce comprehensive study guides and documents using AI.</li>
+        <li><strong>Progress Tracking:</strong> Monitor your learning statistics and performance.</li>
+      </ul>
+
+      <h2>Our Mission</h2>
+      <p>At Mars.ai, we believe that education should be accessible, personalized, and engaging. Our mission is to democratize learning by providing powerful AI tools that adapt to individual learning styles and help users achieve their educational goals.</p>
+
+      <h2>Contact Us</h2>
+      <p>If you have any questions or feedback, please reach out to us at itzc558@gmail.com</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="account-modal">
+  <div class="modal-content">
+    <h2>Account</h2>
+    <div id="account-info">
+      <!-- Account info will be loaded here -->
+    </div>
+  </div>
+</div>
+
+<script>
+// Account modal functions
+let outsideClickHandler;
+
+function openAccountModal() {
+  const modal = document.getElementById('account-modal');
+  const info = document.getElementById('account-info');
+  const user = JSON.parse(localStorage.getItem('currentUser'));
+  if (user) {
+    info.innerHTML = `<p>Signed in as: ${user.name}</p><button class="auth-btn" onclick="logout()">Logout</button><br><button onclick="closeAccountModal()" style="background: none; border: none; color: #6c757d; cursor: pointer; margin: 1rem auto 0; display: block; text-align: center;">Close</button>`;
+  } else {
+    info.innerHTML = `<p>Not signed in</p><button class="auth-btn" onclick="window.location.href='sign-in.html'">Sign In</button><br><button onclick="closeAccountModal()" style="background: none; border: none; color: #6c757d; cursor: pointer; margin: 1rem auto 0; display: block; text-align: center;">Close</button>`;
+  }
+  modal.classList.add('show');
+  outsideClickHandler = function(e) {
+    if (e.target.id === 'account-modal') {
+      closeAccountModal();
+    }
+  };
+  document.addEventListener('click', outsideClickHandler);
+}
+
+function closeAccountModal() {
+  document.getElementById('account-modal').classList.remove('show');
+  if (outsideClickHandler) {
+    document.removeEventListener('click', outsideClickHandler);
+    outsideClickHandler = null;
+  }
+}
+
+function logout() {
+  localStorage.removeItem('currentUser');
+  closeAccountModal();
+  window.location.href = 'sign-in.html';
+}
+
+// Event listener for account link
+document.getElementById('account-link').addEventListener('click', function(e) {
+  e.preventDefault();
+  openAccountModal();
+});
+
+// Sidebar toggle
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('sidebar-open');
+  localStorage.setItem('sidebarOpen', document.body.classList.contains('sidebar-open'));
+});
+
+// Initialize sidebar state
+if (localStorage.getItem('sidebarOpen') === 'true') {
+  document.body.classList.add('sidebar-open');
+}
+document.body.classList.add('sidebar-initialized');
+
+// Close sidebar when clicking outside
+document.addEventListener('click', (e) => {
+  const sidebar = document.querySelector('.sidebar');
+  const toggle = document.getElementById('sidebar-toggle');
+  const accountModal = document.getElementById('account-modal');
+  if (!sidebar.contains(e.target) && !toggle.contains(e.target) && document.body.classList.contains('sidebar-open') && !accountModal.classList.contains('show')) {
+    document.body.classList.remove('sidebar-open');
+    localStorage.setItem('sidebarOpen', false);
+  }
+});
+</script>
+
+<script>
+  const toggle = document.getElementById('sidebar-toggle');
+  toggle.addEventListener('click', () => {
+    document.body.classList.toggle('sidebar-closed');
+  });
+</script>
+
+</body>
+</html>

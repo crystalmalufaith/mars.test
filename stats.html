@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mars.ai - Study Statistics</title>
+
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="header">
+  <button id="sidebar-toggle" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">☰</button>
+  <h1>Mars.ai</h1>
+  <div></div>
+</div>
+
+<div class="sidebar">
+  <nav class="nav">
+    <a href="index.html">AI Tutor</a>
+    <a href="decks.html">Decks</a>
+    <a href="docs.html">Docs</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="stats.html">Stats</a>
+    <a href="community.html">Community</a>
+    <a href="about.html">About</a>
+    <a href="terms.html">Terms</a>
+    <a href="#" id="account-link">Account</a>
+  </nav>
+</div>
+
+<div class="main-section">
+  <div class="main-container">
+    <div class="page-header">
+      <h1>Study Statistics</h1>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Quizzes</h3>
+        <div class="stat-value" id="total-quizzes">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Average Score</h3>
+        <div class="stat-value" id="average-score">0%</div>
+      </div>
+      <div class="stat-card">
+        <h3>Best Score</h3>
+        <div class="stat-value" id="best-score">0%</div>
+      </div>
+      <div class="stat-card">
+        <h3>Flashcard Decks</h3>
+        <div class="stat-value" id="total-decks">0</div>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h2>Score Progress</h2>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+      </div>
+      <p style="text-align: center; margin-top: 0.5rem; color: #666;">Recent quiz performance trend</p>
+    </div>
+
+    <div class="recent-activity">
+      <h2>Recent Activity</h2>
+      <ul class="activity-list" id="activity-list">
+        <li class="no-data">No activity yet. Take some quizzes to see your progress!</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="account-modal">
+  <div class="modal-content">
+    <h2>Account</h2>
+    <div id="account-info">
+      <!-- Account info will be loaded here -->
+    </div>
+  </div>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem('currentUser'));
+if (!user) {
+  window.location.href = 'sign-in.html?redirect=' + encodeURIComponent(window.location.href);
+}
+
+function loadStats() {
+  const quizStats = JSON.parse(localStorage.getItem('quizStats_' + user.id)) || [];
+  const decks = JSON.parse(localStorage.getItem('flashcardDecks_' + user.id)) || [];
+
+  // Calculate stats
+  const totalQuizzes = quizStats.length;
+  const totalDecks = decks.length;
+
+  let totalScore = 0;
+  let bestScore = 0;
+
+  quizStats.forEach(stat => {
+    totalScore += stat.score;
+    if (stat.score > bestScore) bestScore = stat.score;
+  });
+
+  const averageScore = totalQuizzes > 0 ? Math.round(totalScore / totalQuizzes) : 0;
+
+  // Update display
+  document.getElementById('total-quizzes').textContent = totalQuizzes;
+  document.getElementById('average-score').textContent = `${averageScore}%`;
+  document.getElementById('best-score').textContent = `${bestScore}%`;
+  document.getElementById('total-decks').textContent = totalDecks;
+
+  // Progress bar (simplified - shows average score)
+  document.getElementById('progress-fill').style.width = `${averageScore}%`;
+
+  // Recent activity
+  const activityList = document.getElementById('activity-list');
+  if (quizStats.length === 0) return;
+
+  activityList.innerHTML = '';
+
+  // Show last 10 activities
+  const recentStats = quizStats.slice(-10).reverse();
+  recentStats.forEach(stat => {
+    const date = new Date(stat.date).toLocaleDateString();
+    const item = document.createElement('li');
+    item.className = 'activity-item';
+    item.innerHTML = `
+      <div>
+        <div class="activity-type">Quiz Completed</div>
+        <div class="activity-date">${date}</div>
+      </div>
+      <div class="activity-score">${stat.score}%</div>
+    `;
+    activityList.appendChild(item);
+  });
+}
+
+// Load stats on page load
+loadStats();
+
+// Refresh stats every 5 seconds (in case user takes quiz in another tab)
+setInterval(loadStats, 5000);
+
+// Account modal functions
+let outsideClickHandler;
+
+function openAccountModal() {
+  const modal = document.getElementById('account-modal');
+  const info = document.getElementById('account-info');
+  const user = JSON.parse(localStorage.getItem('currentUser'));
+  if (user) {
+    info.innerHTML = `<p>Signed in as: ${user.name}</p><button class="auth-btn" onclick="logout()">Logout</button><br><button onclick="closeAccountModal()" style="background: none; border: none; color: #6c757d; cursor: pointer; margin: 1rem auto 0; display: block; text-align: center;">Close</button>`;
+  } else {
+    info.innerHTML = `<p>Not signed in</p><button class="auth-btn" onclick="window.location.href='sign-in.html'">Sign In</button><br><button onclick="closeAccountModal()" style="background: none; border: none; color: #6c757d; cursor: pointer; margin: 1rem auto 0; display: block; text-align: center;">Close</button>`;
+  }
+  modal.classList.add('show');
+  outsideClickHandler = function(e) {
+    if (e.target.id === 'account-modal') {
+      closeAccountModal();
+    }
+  };
+  document.addEventListener('click', outsideClickHandler);
+}
+
+function closeAccountModal() {
+  document.getElementById('account-modal').classList.remove('show');
+  if (outsideClickHandler) {
+    document.removeEventListener('click', outsideClickHandler);
+    outsideClickHandler = null;
+  }
+}
+
+function logout() {
+  localStorage.removeItem('currentUser');
+  closeAccountModal();
+  window.location.href = 'sign-in.html';
+}
+
+// Event listener for account link
+document.getElementById('account-link').addEventListener('click', function(e) {
+  e.preventDefault();
+  openAccountModal();
+});
+
+// Sidebar toggle
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('sidebar-open');
+  localStorage.setItem('sidebarOpen', document.body.classList.contains('sidebar-open'));
+});
+
+// Initialize sidebar state
+if (localStorage.getItem('sidebarOpen') === 'true') {
+  document.body.classList.add('sidebar-open');
+}
+document.body.classList.add('sidebar-initialized');
+
+// Close sidebar when clicking outside
+document.addEventListener('click', (e) => {
+  const sidebar = document.querySelector('.sidebar');
+  const toggle = document.getElementById('sidebar-toggle');
+  const accountModal = document.getElementById('account-modal');
+  if (!sidebar.contains(e.target) && !toggle.contains(e.target) && document.body.classList.contains('sidebar-open') && !accountModal.classList.contains('show')) {
+    document.body.classList.remove('sidebar-open');
+    localStorage.setItem('sidebarOpen', false);
+  }
+});
+</script>
+
+<script>
+  const toggle = document.getElementById('sidebar-toggle');
+  toggle.addEventListener('click', () => {
+    document.body.classList.toggle('sidebar-closed');
+  });
+</script>
+
+</body>
+</html>
