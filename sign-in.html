@@ -30,6 +30,12 @@
 <script>
 let currentUser = null;
 
+// Show message function
+function showMessage(message, type) {
+  // Simple alert for now, or you can implement a proper message display
+  alert(message);
+}
+
 // Check if user is already signed in
 function checkAuth() {
   const user = JSON.parse(localStorage.getItem('currentUser'));
